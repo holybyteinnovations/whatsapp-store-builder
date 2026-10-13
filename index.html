@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b1220" />
+<title>WhatsApp Store Builder — HolyByte</title>
+<meta name="description" content="Create a WhatsApp store for any local shop in minutes — from your phone. No coding, no monthly fees." />
+<link rel="manifest" href="manifest.json" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --bg:#0b1220; --panel:#131c2e; --panel2:#0f1626;
+    --line:#243149; --txt:#eaf0f8; --muted:#8ea0bb; --accent:#25D366; --accent2:#0e7a5f;
+    --danger:#ff6b81; --radius:16px;
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--txt);overscroll-behavior-y:none;
+  }
+  .app{max-width:520px;margin:0 auto;min-height:100%;position:relative;background:radial-gradient(900px 400px at 50% -8%,#15243f,var(--bg) 60%)}
+  /* top app bar */
+  .appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
+    padding:14px 16px;background:rgba(11,18,32,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .appbar .ic{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:18px}
+  .appbar h1{font-size:16px;margin:0;font-weight:800}
+  .appbar .back{font-size:22px;background:none;border:none;color:var(--txt);cursor:pointer;padding:4px 8px;margin-left:-6px}
+  .appbar .right{margin-left:auto;display:flex;gap:8px}
+  .screen{padding:16px 16px calc(120px + var(--safe-b));display:none}
+  .screen.on{display:block}
+  /* buttons */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:none;border-radius:14px;
+    padding:15px;font-size:15.5px;font-weight:800;cursor:pointer;background:var(--accent);color:#06251a;transition:filter .15s,transform .06s}
+  .btn:active{transform:scale(.985)} .btn:disabled{opacity:.5}
+  .btn.sec{background:var(--panel);color:var(--txt);border:1px solid var(--line)}
+  .btn.danger{background:#2a1620;color:var(--danger);border:1px solid #4a2230}
+  .btn.row{width:auto;padding:12px 16px;font-size:14px}
+  .btnrow{display:flex;gap:10px}
+  /* cards / list */
+  .hero{padding:4px 2px 18px}
+  .hero h2{font-size:22px;margin:0 0 4px} .hero p{color:var(--muted);margin:0;font-size:14px;line-height:1.5}
+  .scard{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:13px;margin-bottom:12px;cursor:pointer;transition:border .15s}
+  .scard:active{border-color:var(--accent)}
+  .scard .av{width:50px;height:50px;border-radius:12px;flex:none;object-fit:cover;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:22px;color:#fff}
+  .scard .meta{flex:1;min-width:0}
+  .scard .meta b{display:block;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .scard .meta small{color:var(--muted);font-size:12.5px}
+  .scard .go{color:var(--muted);font-size:20px}
+  .empty{text-align:center;color:var(--muted);padding:48px 20px}
+  .empty .big{font-size:50px;margin-bottom:12px}
+  /* form */
+  .sec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+  .sec h3{font-size:12px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
+  label:first-of-type{margin-top:0}
+  input,textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:12px;padding:13px;font-size:16px;font-family:inherit;outline:none;transition:border .15s}
+  input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:70px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
+  /* image picker */
+  .imgpick{display:flex;align-items:center;gap:12px;margin-top:4px}
+  .thumb{width:62px;height:62px;border-radius:12px;object-fit:cover;background:var(--panel2);border:1px solid var(--line);flex:none;display:grid;place-items:center;color:var(--muted);font-size:22px}
+  .cover-pick{width:100%;height:120px;border-radius:14px;object-fit:cover;background:var(--panel2);border:1px dashed var(--line);display:grid;place-items:center;color:var(--muted);cursor:pointer;margin-top:4px;text-align:center;font-size:13px}
+  .pickbtn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 14px;font-size:13.5px;font-weight:700;cursor:pointer}
+  .svc{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+  .svc .top{display:flex;gap:10px;align-items:center}
+  .svc .top input{flex:1}
+  .svc .price{width:92px}
+  .svc .del{background:#2a1620;color:var(--danger);border:1px solid #4a2230;border-radius:10px;padding:11px 12px;cursor:pointer;font-weight:800;flex:none}
+  .svc .imgrow{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .svc .imgrow .thumb{width:46px;height:46px;font-size:16px}
+  .swatches{display:flex;gap:10px;flex-wrap:wrap}
+  .swatch{width:38px;height:38px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+  .swatch.on{border-color:#fff}
+  /* bottom action bar */
+  .fab{position:fixed;left:0;right:0;bottom:0;z-index:25;max-width:520px;margin:0 auto;
+    padding:12px 16px calc(12px + var(--safe-b));background:linear-gradient(transparent,var(--bg) 22%);display:flex;gap:10px}
+  /* modal / sheet */
+  .modal{position:fixed;inset:0;z-index:50;background:rgba(3,6,12,.72);display:none;align-items:flex-end;justify-content:center}
+  .modal.on{display:flex}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:520px;padding:20px 18px calc(20px + var(--safe-b));max-height:92vh;overflow:auto}
+  .sheet .grab{width:40px;height:4px;border-radius:3px;background:#3a4761;margin:0 auto 14px}
+  .sheet h3{margin:0 0 4px;font-size:19px} .sheet p{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 14px}
+  .qrwrap{background:#fff;border-radius:16px;padding:16px;text-align:center;margin:12px 0}
+  .qrwrap img{width:210px;height:210px}
+  .qrwrap p{color:#222;font-weight:700;font-size:12.5px;margin:10px 0 0}
+  .linkbox{display:flex;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:6px 6px 6px 12px;align-items:center;margin:10px 0}
+  .linkbox input{border:none;background:none;padding:8px 0;font-size:13px}
+  .greet{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px;white-space:pre-wrap;font-size:13.5px;line-height:1.6;color:var(--txt);margin:8px 0}
+  .step{display:flex;gap:12px;margin-bottom:14px} .step .n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#06251a;font-weight:800;display:grid;place-items:center;flex:none;font-size:13px}
+  .step .t{font-size:13.5px;line-height:1.5;color:var(--muted)} .step .t b{color:var(--txt)}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#0f2a1c;border:1px solid var(--accent);color:var(--accent);padding:12px 18px;border-radius:12px;font-weight:700;font-size:13.5px;display:none;z-index:70}
+  .tag{display:inline-block;background:#1b2740;color:var(--muted);font-size:11px;padding:3px 8px;border-radius:20px;margin-left:6px}
+  .cloudchip{font-size:11px;padding:4px 9px;border-radius:20px;background:#1b2740;color:var(--muted)}
+  .cloudchip.on{background:#0f2a1c;color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- ============ VIEWER MODE (store page shown to customers) ============ -->
+<div id="storeView"></div>
+
+<!-- ============ BUILDER APP ============ -->
+<div class="app" id="app">
+  <div class="appbar">
+    <button class="back" id="backBtn" onclick="go('list')" style="display:none">‹</button>
+    <div class="ic" id="barIcon">🛍️</div>
+    <h1 id="barTitle">WhatsApp Store Builder</h1>
+    <div class="right"><span class="cloudchip" id="cloudChip">● Local</span></div>
+  </div>
+
+  <!-- SCREEN: list -->
+  <div class="screen on" id="screen-list">
+    <div class="hero">
+      <h2>My Stores</h2>
+      <p>Build a WhatsApp store for any shop in minutes — right from your phone.</p>
+    </div>
+    <div id="salonList"></div>
+    <div class="empty" id="emptyState" style="display:none">
+      <div class="big">🏪</div>
+      <p>No stores yet.<br>Tap below to create your first one.</p>
+    </div>
+  </div>
+
+  <!-- SCREEN: edit -->
+  <div class="screen" id="screen-edit">
+    <div class="sec">
+      <h3>🏷️ Business basics</h3>
+      <div class="cover-pick" id="coverPick" onclick="pickCover()">📷 Add a cover photo (optional)</div>
+      <label>Store name *</label>
+      <input id="f_name" placeholder="Glow &amp; Go Salon" oninput="live()" />
+      <label>Tagline</label>
+      <input id="f_tag" placeholder="Walk-in haircuts &amp; grooming" oninput="live()" />
+      <div class="two">
+        <div><label>Category</label>
+          <select id="f_cat" onchange="live()">
+            <option>Salon &amp; Spa</option><option>Beauty &amp; Nails</option><option>Barbershop</option>
+            <option>Cafe &amp; Restaurant</option><option>Bakery</option><option>Clinic / Dental</option>
+            <option>Tutor / Coaching</option><option>Boutique / Store</option><option>Gym / Fitness</option>
+            <option>Services</option><option>Other</option>
+          </select></div>
+        <div><label>Currency</label><input id="f_cur" value="₹" maxlength="3" oninput="live()" /></div>
+      </div>
+      <label>Logo (optional)</label>
+      <div class="imgpick"><img class="thumb" id="logoThumb" alt="">
+        <button class="pickbtn" onclick="pickLogo()">Choose logo</button></div>
+    </div>
+
+    <div class="sec">
+      <h3>💬 Contact &amp; location</h3>
+      <label>WhatsApp number (with country code) *</label>
+      <input id="f_wa" inputmode="numeric" placeholder="91 98765 43210" oninput="live()" />
+      <div class="hint">Digits only, start with country code (India = 91). Bookings land here.</div>
+      <label>Call number (optional)</label>
+      <input id="f_phone" inputmode="tel" placeholder="098765 43210" oninput="live()" />
+      <label>Address (optional)</label>
+      <textarea id="f_addr" placeholder="Shop 4, MG Road, Bengaluru 560001" oninput="live()"></textarea>
+      <label>Google Maps link (optional)</label>
+      <input id="f_maps" placeholder="https://maps.app.goo.gl/..." oninput="live()" />
+      <div class="hint">Maps → your shop → Share → Copy link → paste here for a “Directions” button.</div>
+    </div>
+
+    <div class="sec">
+      <h3>🕒 Opening hours</h3>
+      <textarea id="f_hours" placeholder="Mon–Sat: 10 AM – 9 PM&#10;Sunday: Closed" oninput="live()"></textarea>
+    </div>
+
+    <div class="sec">
+      <h3>✂️ Services &amp; prices</h3>
+      <div id="svcList"></div>
+      <button class="btn sec" onclick="addSvc()">+ Add service</button>
+      <div class="hint">Add a photo per service (optional). Customers tick what they want; the total + list auto-fills their WhatsApp message.</div>
+    </div>
+
+    <div class="sec">
+      <h3>💳 UPI payment <span class="tag">India</span></h3>
+      <div class="two">
+        <div><label>UPI ID</label><input id="f_upi" placeholder="name@okhdfcbank" oninput="live()" /></div>
+        <div><label>Payee name</label><input id="f_upiname" placeholder="Glow &amp; Go Salon" oninput="live()" /></div>
+      </div>
+      <div class="hint">Shows a scannable UPI QR + “Pay now” on the store. Leave blank to hide.</div>
+    </div>
+
+    <div class="sec">
+      <h3>🎨 Colour theme</h3>
+      <div class="swatches" id="swatches"></div>
+    </div>
+  </div>
+
+  <!-- bottom bars -->
+  <div class="fab" id="fab-list"><button class="btn" onclick="newSalon()">➕ Create new store</button></div>
+  <div class="fab" id="fab-edit" style="display:none">
+    <button class="btn sec row" style="flex:none" onclick="previewStore()">👁 Preview</button>
+    <button class="btn" onclick="publish()">🚀 Generate</button>
+  </div>
+</div>
+
+<!-- publish modal -->
+<div class="modal" id="pubModal">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3>Store ready 🎉</h3>
+    <p id="pubSub">Share the link, print the QR, and set the WhatsApp greeting below.</p>
+    <div class="qrwrap"><img id="qrImg" alt="QR"><p>Scan to open store</p></div>
+    <div class="linkbox"><input id="shareLink" readonly><button class="btn sec row" style="flex:none" onclick="copyLink()">Copy</button></div>
+    <div class="btnrow" style="margin:10px 0">
+      <button class="btn sec" onclick="saveQR()">⬇ Save QR</button>
+      <button class="btn sec" onclick="shareWA()">📤 Share</button>
+    </div>
+    <p style="margin:16px 0 6px;color:var(--txt);font-weight:700;font-size:14px">📋 WhatsApp greeting message</p>
+    <p style="margin:0 0 8px">Paste this in WhatsApp Business → Business tools → Greeting message, so customers get an instant auto-reply.</p>
+    <div class="greet" id="greetText"></div>
+    <button class="btn sec" onclick="copyGreet()">📋 Copy greeting</button>
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn sec" onclick="downloadStore()">⬇ Download file</button>
+      <button class="btn" onclick="closeModal('pubModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- cloud setup modal -->
+<div class="modal" id="cloudModal">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h3>Turn on cloud short-links ☁️</h3>
+    <p>Stores work offline already. To get short shareable links + photos that load everywhere, connect a free Supabase project (2 min, no card):</p>
+    <div class="step"><div class="n">1</div><div class="t">Go to <b>supabase.com</b> → sign up → <b>New project</b> (pick any name + password).</div></div>
+    <div class="step"><div class="n">2</div><div class="t">Open <b>Project Settings → API</b>. Copy the <b>Project URL</b> and the <b>anon public</b> key.</div></div>
+    <div class="step"><div class="n">3</div><div class="t">Send both to HolyByte and we wire it in — then every store gets a short link automatically.</div></div>
+    <p style="font-size:12px">The anon key is safe to use in a browser app — it's designed for exactly this.</p>
+    <button class="btn" onclick="closeModal('cloudModal')">Got it</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   WhatsApp Store Builder v2 — HolyByte Innovations
+   Mobile-first. Local-first. Cloud (Supabase) optional.
+============================================================ */
+
+/* ---- CLOUD CONFIG: paste your Supabase project URL + anon key to enable cloud short-links ---- */
+const CLOUD = {
+  url:"https://ebpjacvfsdvmskkntmtx.supabase.co",
+  anon:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVicGphY3Zmc2R2bXNra250bXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4NDc0NzMsImV4cCI6MjEwNzQyMzQ3M30.ZDwTmjcH7qh0e-NIKr9hkwDLPJsDZAIO3jFdO-YXOR4",
+  bucket:"store-images", table:"stores"
+};
+/* --------------------------------------------------------------------------------------------- */
+
+const THEMES=[
+  {name:'WhatsApp Green',a:'#25D366',b:'#075E54'},{name:'Rose',a:'#e8537a',b:'#7a2541'},
+  {name:'Purple',a:'#8b5cf6',b:'#4c1d95'},{name:'Sunset',a:'#f97316',b:'#9a3412'},
+  {name:'Ocean',a:'#0ea5e9',b:'#075985'},{name:'Gold',a:'#c9a227',b:'#5c4a12'},
+  {name:'Charcoal',a:'#1f2937',b:'#4b5563'},{name:'Teal',a:'#14b8a6',b:'#115e59'},
+];
+const KEY='wsb_salons_v2';
+let salons=load(); let cur=null; // current salon being edited
+const cloudOn=()=>!!(CLOUD.url&&CLOUD.anon);
+
+/* ---------- storage ---------- */
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(salons))}catch(e){toast('Storage full — remove a photo')}}
+function blank(){return{id:'s'+Date.now().toString(36),name:'',tag:'',cat:'Salon & Spa',cur:'₹',cover:'',logo:'',wa:'',phone:'',addr:'',maps:'',hours:'',services:[],upi:'',upiname:'',theme:0,slug:''}}
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const waDigits=s=>(s||'').replace(/\D/g,'');
+
+/* ---------- navigation ---------- */
+function go(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('screen-'+screen).classList.add('on');
+  document.getElementById('fab-list').style.display=screen==='list'?'flex':'none';
+  document.getElementById('fab-edit').style.display=screen==='edit'?'flex':'none';
+  document.getElementById('backBtn').style.display=screen==='list'?'none':'block';
+  document.getElementById('barTitle').textContent=screen==='list'?'WhatsApp Store Builder':(cur&&cur.name||'New store');
+  window.scrollTo(0,0);
+}
+
+/* ---------- list screen ---------- */
+function renderList(){
+  const wrap=document.getElementById('salonList'); wrap.innerHTML='';
+  document.getElementById('emptyState').style.display=salons.length?'none':'block';
+  salons.forEach(s=>{
+    const d=document.createElement('div'); d.className='scard'; d.onclick=()=>editSalon(s.id);
+    const av=s.logo?`<img class="av" src="${s.logo}">`:`<div class="av">${(s.cat||'🏪').slice(0,1)}</div>`;
+    d.innerHTML=`${av}<div class="meta"><b>${esc(s.name||'Untitled store')}</b>
+      <small>${esc(s.cat)} · ${s.services.length} service${s.services.length!==1?'s':''}</small></div>
+      <div class="go">›</div>`;
+    wrap.appendChild(d);
+  });
+}
+function newSalon(){cur=blank();salons.push(cur);fillForm();go('edit');}
+function editSalon(id){cur=salons.find(s=>s.id===id);fillForm();go('edit');}
+
+/* ---------- form <-> model ---------- */
+function fillForm(){
+  setv('f_name',cur.name);setv('f_tag',cur.tag);setv('f_cat',cur.cat);setv('f_cur',cur.cur);
+  setv('f_wa',cur.wa);setv('f_phone',cur.phone);setv('f_addr',cur.addr);setv('f_maps',cur.maps);
+  setv('f_hours',cur.hours);setv('f_upi',cur.upi);setv('f_upiname',cur.upiname);
+  document.getElementById('coverPick').style.backgroundImage=cur.cover?`url(${cur.cover})`:'';
+  document.getElementById('coverPick').innerHTML=cur.cover?'':'📷 Add a cover photo (optional)';
+  setThumb('logoThumb',cur.logo,'🏪');
+  renderSvcs(); buildSwatches();
+}
+const setv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||''};
+function setThumb(id,src,ph){const e=document.getElementById(id);if(!e)return;if(src){e.style.backgroundImage=`url(${src})`;e.style.backgroundSize='cover';e.textContent='';}else{e.style.backgroundImage='';e.textContent=ph;}}
+function live(){ if(!cur)return;
+  cur.name=val('f_name');cur.tag=val('f_tag');cur.cat=val('f_cat');cur.cur=val('f_cur')||'₹';
+  cur.wa=val('f_wa');cur.phone=val('f_phone');cur.addr=val('f_addr');cur.maps=val('f_maps');
+  cur.hours=val('f_hours');cur.upi=val('f_upi');cur.upiname=val('f_upiname');
+  readSvcs(); save();
+  document.getElementById('barTitle').textContent=cur.name||'New store';
+}
+const val=id=>document.getElementById(id).value.trim();
+
+/* ---------- services ---------- */
+function renderSvcs(){
+  const w=document.getElementById('svcList');w.innerHTML='';
+  cur.services.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='svc';
+    d.innerHTML=`<div class="top">
+        <input placeholder="Service name" value="${esc(s.n)}" oninput="readSvcs();save()">
+        <input class="price" inputmode="decimal" placeholder="Price" value="${esc(s.p)}" oninput="readSvcs();save()">
+        <button class="del" onclick="delSvc(${i})">✕</button></div>
+      <div class="imgrow"><div class="thumb" id="svcimg${i}"></div>
+        <button class="pickbtn" onclick="pickSvcImg(${i})">Photo</button></div>`;
+    w.appendChild(d);
+    setThumb('svcimg'+i,s.img,'📷');
+  });
+}
+function addSvc(){cur.services.push({n:'',p:'',img:''});renderSvcs();save();}
+function delSvc(i){cur.services.splice(i,1);renderSvcs();save();}
+function readSvcs(){
+  const rows=document.querySelectorAll('#svcList .svc');
+  rows.forEach((r,i)=>{const[n,p]=r.querySelectorAll('input');if(cur.services[i]){cur.services[i].n=n.value.trim();cur.services[i].p=p.value.trim();}});
+}
+
+/* ---------- image pick + compress ---------- */
+function pickFile(cb){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=e=>{const f=e.target.files[0];if(f)compress(f).then(cb);};
+  inp.click();
+}
+function compress(file,max=1000,q=0.72){
+  return new Promise(res=>{
+    const img=new Image();img.onload=()=>{
+      let{width:w,height:h}=img;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}
+      const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      res(c.toDataURL('image/jpeg',q));
+    };img.src=URL.createObjectURL(file);
+  });
+}
+function pickCover(){pickFile(d=>{cur.cover=d;save();document.getElementById('coverPick').style.backgroundImage=`url(${d})`;document.getElementById('coverPick').innerHTML='';});}
+function pickLogo(){pickFile(d=>{cur.logo=d;save();setThumb('logoThumb',d,'🏪');});}
+function pickSvcImg(i){pickFile(d=>{cur.services[i].img=d;save();setThumb('svcimg'+i,d,'📷');});}
+
+/* ---------- swatches ---------- */
+function buildSwatches(){
+  const w=document.getElementById('swatches');w.innerHTML='';
+  THEMES.forEach((t,i)=>{const s=document.createElement('div');s.className='swatch'+(i===cur.theme?' on':'');
+    s.style.background=`linear-gradient(135deg,${t.a},${t.b})`;s.title=t.name;
+    s.onclick=()=>{cur.theme=i;buildSwatches();save();};w.appendChild(s);});
+}
+
+/* ============================================================
+   STORE RENDERING (preview + file + cloud viewer share this)
+============================================================ */
+function storeCSS(t){return `
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#f4f5f7;color:#1a1a1a}
+.wrap{max-width:480px;margin:0 auto;background:#f4f5f7;min-height:100vh}
+.cover{height:150px;background:linear-gradient(135deg,${t.a},${t.b});background-size:cover;background-position:center}
+.hd{background:linear-gradient(135deg,${t.a},${t.b});color:#fff;padding:0 20px 64px;text-align:center;margin-top:-1px}
+.hd.hascover{background:none;margin-top:-54px;padding-top:0}
+.lg{width:84px;height:84px;border-radius:22px;object-fit:cover;margin:0 auto 10px;display:block;border:4px solid #fff;background:#eee;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.lgph{width:84px;height:84px;border-radius:22px;background:${t.b};display:grid;place-items:center;font-size:34px;color:#fff;margin:0 auto 10px;border:4px solid #fff}
+.hd h1{font-size:23px;font-weight:800;line-height:1.2;${''}}
+.hd.hascover h1,.hd.hascover .cat,.hd.hascover .tag{color:#111}
+.cat{opacity:.92;font-size:13px;margin-top:4px}.tag{opacity:.96;font-size:14px;margin-top:8px}
+.sheet{background:#fff;border-radius:24px 24px 0 0;margin-top:-44px;position:relative;padding:16px 16px 130px;min-height:50vh}
+.quick{display:flex;gap:10px;margin:-38px 6px 16px;position:relative}
+.qbtn{flex:1;background:#fff;border:1px solid #eee;border-radius:14px;padding:12px 4px;text-align:center;text-decoration:none;color:#222;box-shadow:0 6px 18px rgba(0,0,0,.07)}
+.qbtn .i{font-size:20px;display:block;margin-bottom:3px}.qbtn .t{font-size:11px;font-weight:800;color:#555}
+.blk{margin:20px 4px}.blk h2{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#9aa0ab;margin-bottom:10px}
+.hours{background:#faf7f0;border:1px solid #f0ead9;border-radius:14px;padding:14px 16px;white-space:pre-line;font-size:14px;line-height:1.7}
+.svcrow{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid #f1f1f1;cursor:pointer}
+.svcrow:last-child{border-bottom:none}
+.svcimg{width:48px;height:48px;border-radius:11px;object-fit:cover;flex:none;background:#f0f0f0}
+.ck{width:24px;height:24px;border-radius:8px;border:2px solid ${t.a};flex:none;display:grid;place-items:center;transition:.12s}
+.ck.on{background:${t.a}}.ck.on:after{content:'✓';color:#fff;font-size:14px;font-weight:900}
+.svcrow .nm{flex:1;font-size:15px;font-weight:600}.svcrow .pr{font-weight:800;color:${t.b};font-size:15px}
+.addr{background:#f7f9fc;border:1px solid #eef2f7;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.6;color:#333}
+.pay{background:linear-gradient(135deg,${t.a}17,${t.b}17);border:1px solid ${t.a}30;border-radius:16px;padding:18px;text-align:center}
+.pay img{width:150px;height:150px;border-radius:12px;background:#fff;padding:8px}.pay .u{font-size:12px;color:#555;margin-top:8px;word-break:break-all}
+.payb{display:inline-block;margin-top:12px;background:${t.b};color:#fff;text-decoration:none;padding:11px 22px;border-radius:30px;font-weight:700;font-size:14px}
+.foot{text-align:center;padding:22px 16px 8px;color:#aab;font-size:11.5px}.foot a{color:${t.a};text-decoration:none;font-weight:700}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:12px;align-items:center;max-width:480px;margin:0 auto;box-shadow:0 -6px 24px rgba(0,0,0,.09)}
+.bar .tot{flex:none}.bar .tot b{display:block;font-size:17px}.bar .tot small{color:#999;font-size:11px}
+.book{flex:1;background:${t.a};color:#06251a;text-decoration:none;border:none;border-radius:30px;padding:15px;font-weight:800;font-size:15px;text-align:center;cursor:pointer}
+`;}
+function storeMarkup(s){
+  const t=THEMES[s.theme||0],wa=waDigits(s.wa);
+  const logo=s.logo?`<img class="lg" src="${s.logo}">`:`<div class="lgph">${esc((s.name||'🏪').slice(0,1))}</div>`;
+  const q=[];
+  if(wa)q.push(`<a class="qbtn" href="https://wa.me/${wa}" target="_blank"><span class="i">💬</span><span class="t">WhatsApp</span></a>`);
+  if(s.phone)q.push(`<a class="qbtn" href="tel:${esc(s.phone.replace(/\s/g,''))}"><span class="i">📞</span><span class="t">Call</span></a>`);
+  if(s.maps)q.push(`<a class="qbtn" href="${esc(s.maps)}" target="_blank"><span class="i">📍</span><span class="t">Map</span></a>`);
+  const svc=s.services.filter(x=>x.n).map((x,i)=>`<div class="svcrow" data-p="${(x.p||'').replace(/[^\d.]/g,'')}" onclick="tog(this)">
+     <div class="ck"></div>${x.img?`<img class="svcimg" src="${x.img}">`:''}<div class="nm">${esc(x.n)}</div>
+     <div class="pr">${x.p?esc(s.cur)+esc(x.p):''}</div></div>`).join('');
+  const pay=s.upi?`<div class="blk"><h2>Pay via UPI</h2><div class="pay"><img id="upiqr">
+     <div class="u">${esc(s.upi)}</div>
+     <a class="payb" href="upi://pay?pa=${encodeURIComponent(s.upi)}&pn=${encodeURIComponent(s.upiname||s.name)}&cu=INR">Pay now</a></div></div>`:'';
+  const hasCover=!!s.cover;
+  return {css:storeCSS(t),html:`<div class="wrap">
+    ${hasCover?`<div class="cover" style="background-image:url(${s.cover})"></div>`:''}
+    <div class="hd ${hasCover?'hascover':''}">${logo}<h1>${esc(s.name||'Your Store')}</h1>
+      <div class="cat">${esc(s.cat||'')}</div>${s.tag?`<div class="tag">${esc(s.tag)}</div>`:''}</div>
+    <div class="sheet">
+      ${q.length?`<div class="quick">${q.join('')}</div>`:''}
+      ${s.hours?`<div class="blk"><h2>Opening hours</h2><div class="hours">${esc(s.hours)}</div></div>`:''}
+      ${svc?`<div class="blk"><h2>Services</h2>${svc}</div>`:''}
+      ${s.addr?`<div class="blk"><h2>Visit us</h2><div class="addr">${esc(s.addr)}</div></div>`:''}
+      ${pay}
+      <div class="foot">Powered by <a href="https://www.holybyteinnovations.com" target="_blank">HolyByte</a></div>
+    </div>
+    ${(wa&&svc)?`<div class="bar"><div class="tot"><b id="totv">${esc(s.cur)}0</b><small>selected</small></div>
+       <a class="book" id="bookbtn" href="#" onclick="return book(event)">💬 Book on WhatsApp</a></div>`
+      :(wa?`<div class="bar"><a class="book" href="https://wa.me/${wa}" target="_blank">💬 Message on WhatsApp</a></div>`:'')}
+  </div>`};
+}
+function storeRuntime(s){const wa=waDigits(s.wa);return `
+window.__S=${JSON.stringify({cur:s.cur,wa:wa,name:s.name})};
+window.tog=function(el){el.querySelector('.ck').classList.toggle('on');recalc();};
+window.recalc=function(){var t=0,n=0;document.querySelectorAll('.svcrow').forEach(function(r){if(r.querySelector('.ck').classList.contains('on')){t+=parseFloat(r.dataset.p||0)||0;n++;}});
+var tv=document.getElementById('totv');if(tv)tv.textContent=__S.cur+(t||0);var b=document.getElementById('bookbtn');if(b)b.textContent=n?'💬 Book '+n+' service'+(n>1?'s':''):'💬 Book on WhatsApp';};
+window.book=function(e){e.preventDefault();var picks=[],t=0;document.querySelectorAll('.svcrow').forEach(function(r){if(r.querySelector('.ck').classList.contains('on')){picks.push('• '+r.querySelector('.nm').textContent+(r.querySelector('.pr').textContent?' — '+r.querySelector('.pr').textContent:''));t+=parseFloat(r.dataset.p||0)||0;}});
+var m='Hi '+(__S.name||'')+'! 👋%0AI would like to book:%0A';if(picks.length)m+=encodeURIComponent(picks.join('\\n'))+'%0A'+encodeURIComponent('Total: '+__S.cur+t)+'%0A';else m+=encodeURIComponent('(tell us what you need)')+'%0A';
+m+=encodeURIComponent('My name: ')+'%0A'+encodeURIComponent('Preferred time: ');window.open('https://wa.me/'+__S.wa+'?text='+m,'_blank');return false;};`;}
+
+/* ---------- QR ---------- */
+function makeQR(text,size){return new Promise(res=>{const tmp=document.createElement('div');
+  new QRCode(tmp,{text:text,width:size,height:size,correctLevel:QRCode.CorrectLevel.M});
+  setTimeout(()=>{const c=tmp.querySelector('canvas');res(c?c.toDataURL('image/png'):(tmp.querySelector('img')||{}).src||'');},60);});}
+async function drawUPI(root,s){const img=root.querySelector('#upiqr');if(img&&s.upi)img.src=await makeQR(`upi://pay?pa=${encodeURIComponent(s.upi)}&pn=${encodeURIComponent(s.upiname||s.name)}&cu=INR`,300);}
+
+/* ---------- preview ---------- */
+async function previewStore(){
+  live(); if(!cur.name){toast('Add a store name first');return;}
+  renderFullStore(cur,true);
+}
+function renderFullStore(s,withBack){
+  const m=storeMarkup(s);const v=document.getElementById('storeView');
+  document.getElementById('app').style.display='none';document.body.style.background='#f4f5f7';
+  v.innerHTML=`<style>${m.css}</style>
+    ${withBack?`<button onclick="exitPreview()" style="position:fixed;top:12px;left:12px;z-index:99;background:#000a;color:#fff;border:none;border-radius:30px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer">‹ Edit</button>`:''}
+    ${m.html}`;
+  const sc=document.createElement('script');sc.textContent=storeRuntime(s);v.appendChild(sc);
+  drawUPI(v,s);if(window.recalc)window.recalc();document.title=s.name||'Store';
+}
+function exitPreview(){document.getElementById('storeView').innerHTML='';document.getElementById('app').style.display='';document.body.style.background='';document.title='WhatsApp Store Builder — HolyByte';}
+
+/* ---------- build downloadable file ---------- */
+async function buildFile(s){
+  const m=storeMarkup(s);let upi='';
+  if(s.upi)upi=await makeQR(`upi://pay?pa=${encodeURIComponent(s.upi)}&pn=${encodeURIComponent(s.upiname||s.name)}&cu=INR`,300);
+  const html=m.html.replace('id="upiqr"',`id="upiqr" src="${upi}"`);
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>${esc(s.name||'Store')}</title><meta name="description" content="${esc(s.tag||s.name)}">
+<style>${m.css}</style></head><body>${html}<script>${storeRuntime(s)}<\/script></body></html>`;
+}
+
+/* ---------- links ---------- */
+function encode(s){return 'b'+btoa(unescape(encodeURIComponent(JSON.stringify(s))));}
+function decode(c){try{return JSON.parse(decodeURIComponent(escape(atob(c.slice(1)))))}catch(e){return null}}
+function baseUrl(){return location.href.split('#')[0].split('?')[0];}
+function hashLink(s){return baseUrl()+'#s='+encode(stripImages(s));}
+function stripImages(s){const c=JSON.parse(JSON.stringify(s));c.cover='';c.logo='';(c.services||[]).forEach(x=>x.img='');return c;}
+function hasImages(s){return !!(s.cover||s.logo||s.services.some(x=>x.img));}
+
+/* ---------- greeting ---------- */
+function greeting(s,link){
+  return `👋 Welcome to ${s.name||'our store'}!\nTap to explore 👇\n\n`+
+  `📋 Services & Prices → ${link}\n`+
+  `💇 Book Appointment → ${link}\n`+
+  (s.hours?`🕒 Timings → ${link}\n`:'')+
+  `\nOr just tell us what you need and we'll reply personally! 💬`;
+}
+
+/* ---------- publish ---------- */
+let pubLink='';
+async function publish(){
+  live(); if(!cur.name){toast('Add a store name first');return;}
+  if(!waDigits(cur.wa)){toast('Add your WhatsApp number');return;}
+  cur.slug=cur.slug||(cur.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,24)||cur.id);
+  save();
+  let link, sub;
+  if(cloudOn()){
+    toast('Uploading…'); try{link=await publishCloud(cur);sub='Live link — opens on any phone, photos and all.';}
+    catch(e){console.error(e);toast('Cloud failed, using offline link');}
+  }
+  if(!link){
+    if(hasImages(cur)){
+      link=hashLink(cur);
+      sub='⚠ Photos need cloud to appear in the link. This link shows text only — use “Download file” for a version WITH photos, or turn on cloud (tap ● Local up top).';
+    }else{ link=hashLink(cur); sub='Share this link anywhere. Works offline, no hosting needed.'; }
+  }
+  pubLink=link;
+  document.getElementById('pubSub').textContent=sub;
+  document.getElementById('shareLink').value=link;
+  document.getElementById('greetText').textContent=greeting(cur,link);
+  const qr=await makeQR(link,320);window.__qr=qr;
+  document.getElementById('qrImg').src=qr;
+  openModal('pubModal');
+}
+
+/* ---------- cloud (Supabase REST, no SDK needed) ---------- */
+async function sb(path,opts){
+  const r=await fetch(CLOUD.url+path,{...opts,headers:{apikey:CLOUD.anon,Authorization:'Bearer '+CLOUD.anon,'Content-Type':'application/json',...(opts&&opts.headers||{})}});
+  if(!r.ok)throw new Error(path+' '+r.status+' '+await r.text());return r;
+}
+async function uploadImg(dataUrl,name){
+  const blob=await(await fetch(dataUrl)).blob();
+  const path=cur.id+'/'+name+'.jpg';
+  await fetch(CLOUD.url+'/storage/v1/object/'+CLOUD.bucket+'/'+path,
+    {method:'POST',headers:{apikey:CLOUD.anon,Authorization:'Bearer '+CLOUD.anon,'Content-Type':'image/jpeg','x-upsert':'true'},body:blob});
+  return CLOUD.url+'/storage/v1/object/public/'+CLOUD.bucket+'/'+path;
+}
+async function publishCloud(s){
+  const c=JSON.parse(JSON.stringify(s));
+  if(c.cover&&c.cover.startsWith('data:'))c.cover=await uploadImg(c.cover,'cover');
+  if(c.logo&&c.logo.startsWith('data:'))c.logo=await uploadImg(c.logo,'logo');
+  for(let i=0;i<c.services.length;i++){if(c.services[i].img&&c.services[i].img.startsWith('data:'))c.services[i].img=await uploadImg(c.services[i].img,'svc'+i);}
+  // persist uploaded urls back so we don't re-upload
+  cur.cover=c.cover;cur.logo=c.logo;c.services.forEach((x,i)=>cur.services[i].img=x.img);save();
+  await sb('/rest/v1/'+CLOUD.table,{method:'POST',headers:{Prefer:'resolution=merge-duplicates'},body:JSON.stringify({slug:c.slug,data:c})});
+  return baseUrl()+'?id='+encodeURIComponent(c.slug);
+}
+async function loadCloud(slug){
+  const r=await sb('/rest/v1/'+CLOUD.table+'?slug=eq.'+encodeURIComponent(slug)+'&select=data',{method:'GET'});
+  const rows=await r.json();return rows[0]&&rows[0].data;
+}
+
+/* ---------- publish actions ---------- */
+function copyLink(){navSelect('shareLink');toast('Link copied ✔');}
+function copyGreet(){const t=document.getElementById('greetText').textContent;navClip(t);toast('Greeting copied ✔');}
+function navSelect(id){const i=document.getElementById(id);i.select();i.setSelectionRange(0,99999);navClip(i.value);}
+function navClip(t){if(navigator.clipboard){navigator.clipboard.writeText(t).catch(()=>{});}else{try{document.execCommand('copy')}catch(e){}}}
+function saveQR(){if(!window.__qr)return;dl(window.__qr,(cur.name||'store').replace(/\s+/g,'-')+'-QR.png');toast('QR saved ✔');}
+async function shareWA(){const txt=(cur.name||'Our store')+' 👇\n'+pubLink;
+  if(navigator.share){try{await navigator.share({title:cur.name,text:txt});return;}catch(e){}}
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
+async function downloadStore(){const html=await buildFile(cur);dl('data:text/html;charset=utf-8,'+encodeURIComponent(html),(cur.name||'store').replace(/\s+/g,'-').toLowerCase()+'.html');toast('File downloaded ✔');}
+function dl(href,name){const a=document.createElement('a');a.href=href;a.download=name;document.body.appendChild(a);a.click();a.remove();}
+
+/* ---------- modal ---------- */
+function openModal(id){document.getElementById(id).classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+document.getElementById('cloudChip').onclick=()=>openModal('cloudModal');
+
+/* ---------- toast ---------- */
+let tmr;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(tmr);tmr=setTimeout(()=>t.style.display='none',2200);}
+
+/* ============================================================
+   BOOT
+============================================================ */
+async function boot(){
+  // cloud chip state
+  const chip=document.getElementById('cloudChip');
+  if(cloudOn()){chip.textContent='☁ Cloud';chip.classList.add('on');}
+  // viewer mode?
+  const params=new URLSearchParams(location.search);
+  if(params.get('id')&&cloudOn()){
+    document.getElementById('app').style.display='none';
+    try{const s=await loadCloud(params.get('id'));if(s){renderFullStore(s,false);return;}document.body.innerHTML='<p style="color:#fff;padding:40px;text-align:center">Store not found.</p>';return;}catch(e){}
+  }
+  if(location.hash.indexOf('#s=')===0){
+    const s=decode(location.hash.slice(3));if(s){document.getElementById('app').style.display='none';renderFullStore(s,false);return;}
+  }
+  // builder
+  renderList(); go('list');
+  if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+}
+boot();
+</script>
+</body>
+</html>
