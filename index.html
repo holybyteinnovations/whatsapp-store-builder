@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0a1020" />
+<meta name="theme-color" content="#ffffff" />
 <title>WhatsApp Store Builder — HolyByte</title>
 <meta name="description" content="Create a WhatsApp store for any local shop in minutes — from your phone. No coding, no monthly fees." />
 <link rel="icon" href="favicon-32.png" sizes="32x32" />
@@ -12,9 +12,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
-    --bg:#0a1020; --panel:#111c33; --panel2:#0c1528;
-    --line:#223355; --txt:#eef3fb; --muted:#93a4c4; --accent:#2a86ef; --accent2:#0b3f8f; --cyan:#58c7f5;
-    --danger:#ff6b81; --radius:16px;
+    --bg:#eef2f8; --panel:#ffffff; --panel2:#f5f8fd;
+    --line:#e4eaf3; --txt:#101b2e; --muted:#687892; --accent:#2a86ef; --accent2:#0b3f8f; --cyan:#58c7f5;
+    --danger:#e23b56; --radius:16px;
+    --shadow:0 4px 20px rgba(18,42,84,.07); --shadow-lg:0 10px 34px rgba(18,42,84,.10);
     --safe-b:env(safe-area-inset-bottom,0px);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -23,10 +24,10 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:var(--bg);color:var(--txt);overscroll-behavior-y:none;
   }
-  .app{max-width:520px;margin:0 auto;min-height:100%;position:relative;background:radial-gradient(900px 440px at 50% -10%,#123a70,var(--bg) 62%)}
+  .app{max-width:520px;margin:0 auto;min-height:100%;position:relative;background:radial-gradient(1100px 560px at 50% -14%,#dceafd,var(--bg) 58%)}
   /* top app bar */
   .appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:11px;
-    padding:12px 16px;background:rgba(10,16,32,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    padding:12px 16px;background:rgba(255,255,255,.82);backdrop-filter:blur(12px) saturate(1.3);border-bottom:1px solid var(--line)}
   .appbar .ic{width:38px;height:38px;border-radius:11px;overflow:hidden;display:grid;place-items:center;flex:none}
   .appbar .ic img{width:100%;height:100%;object-fit:contain}
   .appbar h1{font-size:15px;margin:0;font-weight:800;line-height:1.12}
@@ -40,15 +41,16 @@
     padding:15px;font-size:15.5px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--accent),#1763c7);color:#fff;box-shadow:0 8px 22px rgba(42,134,239,.28);transition:filter .15s,transform .06s}
   .btn:active{transform:scale(.985)} .btn:disabled{opacity:.5}
   .btn.sec{background:var(--panel);color:var(--txt);border:1px solid var(--line)}
-  .btn.danger{background:#2a1620;color:var(--danger);border:1px solid #4a2230}
+  .btn.danger{background:#fdecef;color:var(--danger);border:1px solid #f6ccd4}
   .btn.row{width:auto;padding:12px 16px;font-size:14px}
   .btnrow{display:flex;gap:10px}
   /* cards / list */
   .hero{padding:4px 2px 18px}
   .hero h2{font-size:22px;margin:0 0 4px} .hero p{color:var(--muted);margin:0;font-size:14px;line-height:1.5}
   .scard{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);
-    border-radius:16px;padding:13px;margin-bottom:12px;cursor:pointer;transition:border .15s}
-  .scard:active{border-color:var(--accent)}
+    border-radius:16px;padding:13px;margin-bottom:12px;cursor:pointer;transition:border .15s,box-shadow .15s,transform .1s;box-shadow:var(--shadow)}
+  .scard:active{border-color:var(--accent);transform:scale(.995)}
+  .scard:hover{box-shadow:var(--shadow-lg)}
   .scard .av{width:50px;height:50px;border-radius:12px;flex:none;object-fit:cover;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:22px;color:#fff}
   .scard .meta{flex:1;min-width:0}
   .scard .meta b{display:block;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -57,7 +59,7 @@
   .empty{text-align:center;color:var(--muted);padding:48px 20px}
   .empty .big{font-size:50px;margin-bottom:12px}
   /* form */
-  .sec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+  .sec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
   .sec h3{font-size:12px;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted);margin:0 0 12px;display:flex;align-items:center;gap:8px}
   label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
   label:first-of-type{margin-top:0}
@@ -76,12 +78,12 @@
   .svc .top{display:flex;gap:10px;align-items:center}
   .svc .top input{flex:1}
   .svc .price{width:92px}
-  .svc .del{background:#2a1620;color:var(--danger);border:1px solid #4a2230;border-radius:10px;padding:11px 12px;cursor:pointer;font-weight:800;flex:none}
+  .svc .del{background:#fdecef;color:var(--danger);border:1px solid #f6ccd4;border-radius:10px;padding:11px 12px;cursor:pointer;font-weight:800;flex:none}
   .svc .imgrow{display:flex;align-items:center;gap:10px;margin-top:10px}
   .svc .imgrow .thumb{width:46px;height:46px;font-size:16px}
   .swatches{display:flex;gap:10px;flex-wrap:wrap}
   .swatch{width:38px;height:38px;border-radius:50%;cursor:pointer;border:3px solid transparent}
-  .swatch.on{border-color:#fff}
+  .swatch.on{border-color:#101b2e;box-shadow:0 0 0 2px #fff inset}
   /* bottom action bar */
   .fab{position:fixed;left:0;right:0;bottom:0;z-index:25;max-width:520px;margin:0 auto;
     padding:12px 16px calc(12px + var(--safe-b));background:linear-gradient(transparent,var(--bg) 22%);display:flex;gap:10px}
@@ -89,7 +91,7 @@
   .modal{position:fixed;inset:0;z-index:50;background:rgba(3,6,12,.72);display:none;align-items:flex-end;justify-content:center}
   .modal.on{display:flex}
   .sheet{background:var(--panel);border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:520px;padding:20px 18px calc(20px + var(--safe-b));max-height:92vh;overflow:auto}
-  .sheet .grab{width:40px;height:4px;border-radius:3px;background:#3a4761;margin:0 auto 14px}
+  .sheet .grab{width:40px;height:4px;border-radius:3px;background:#cdd6e4;margin:0 auto 14px}
   .sheet h3{margin:0 0 4px;font-size:19px} .sheet p{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0 0 14px}
   .qrwrap{background:#fff;border-radius:16px;padding:16px;text-align:center;margin:12px 0}
   .qrwrap img{width:210px;height:210px}
@@ -99,10 +101,10 @@
   .greet{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px;white-space:pre-wrap;font-size:13.5px;line-height:1.6;color:var(--txt);margin:8px 0}
   .step{display:flex;gap:12px;margin-bottom:14px} .step .n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#06251a;font-weight:800;display:grid;place-items:center;flex:none;font-size:13px}
   .step .t{font-size:13.5px;line-height:1.5;color:var(--muted)} .step .t b{color:var(--txt)}
-  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#102847;border:1px solid var(--accent);color:#cfe6ff;padding:12px 18px;border-radius:12px;font-weight:700;font-size:13.5px;display:none;z-index:70}
-  .tag{display:inline-block;background:#1b2740;color:var(--muted);font-size:11px;padding:3px 8px;border-radius:20px;margin-left:6px}
-  .cloudchip{font-size:11px;padding:4px 9px;border-radius:20px;background:#1b2740;color:var(--muted)}
-  .cloudchip.on{background:#11294a;color:#9fd0ff}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#101b2e;border:1px solid #101b2e;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;font-size:13.5px;display:none;z-index:70;box-shadow:var(--shadow-lg)}
+  .tag{display:inline-block;background:#eef2f8;color:var(--muted);font-size:11px;padding:3px 8px;border-radius:20px;margin-left:6px;border:1px solid var(--line)}
+  .cloudchip{font-size:11px;padding:5px 11px;border-radius:20px;background:#eef2f8;color:var(--muted);font-weight:600;border:1px solid var(--line)}
+  .cloudchip.on{background:#e6f1fd;color:#1b6fd0;border-color:#c6e0fa}
 </style>
 </head>
 <body>
