@@ -32,6 +32,19 @@
   .appbar .ic img{width:100%;height:100%;object-fit:contain}
   .appbar h1{font-size:15px;margin:0;font-weight:800;line-height:1.12}
   .appbar .brandtext small{display:block;color:var(--muted);font-weight:600;font-size:10px;letter-spacing:.4px;margin-top:1px;text-transform:uppercase}
+  /* premium home */
+  .brandhero{text-align:center;padding:12px 10px 4px}
+  .brandlogo{height:80px;max-width:82%;object-fit:contain}
+  .brandhero h2{font-size:21px;margin:8px 0 5px;font-weight:800;letter-spacing:-.2px}
+  .brandhero p{color:var(--muted);font-size:13.5px;line-height:1.55;margin:0 auto;max-width:340px}
+  .emptycard{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:30px 22px;text-align:center;box-shadow:var(--shadow);margin-top:16px}
+  .emptycard .ei{font-size:46px;line-height:1}
+  .emptycard h3{margin:12px 0 6px;font-size:18px;font-weight:800}
+  .emptycard p{color:var(--muted);font-size:13.5px;line-height:1.55;margin:0 auto 16px;max-width:300px}
+  .feats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .feats span{background:#eef4fd;color:#1b6fd0;border:1px solid #d7e6fb;border-radius:20px;padding:6px 13px;font-size:12px;font-weight:700}
+  .brandfoot{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:11.5px;margin-top:30px;opacity:.9}
+  .brandfoot img{width:20px;height:20px;object-fit:contain}
   .appbar .back{font-size:22px;background:none;border:none;color:var(--txt);cursor:pointer;padding:4px 8px;margin-left:-6px}
   .appbar .right{margin-left:auto;display:flex;gap:8px}
   .screen{padding:16px 16px calc(120px + var(--safe-b));display:none}
@@ -123,17 +136,23 @@
 
   <!-- SCREEN: list -->
   <div class="screen on" id="screen-list">
-    <div class="hero">
-      <h2>My Stores</h2>
-      <p>Build a WhatsApp store for any shop in minutes — right from your phone.</p>
+    <div class="brandhero">
+      <img src="logo-full.png" alt="HolyByte Innovations" class="brandlogo">
+      <h2>WhatsApp Store Builder</h2>
+      <p>Turn any local shop into a WhatsApp store — menu, prices, booking, UPI &amp; QR — in minutes.</p>
     </div>
+    <div id="salonListTitle" class="hero" style="display:none;padding-bottom:6px"><h2 style="font-size:16px">Your stores</h2></div>
     <div id="salonList"></div>
     <div class="empty" id="emptyState" style="display:none">
-      <div class="big">🏪</div>
-      <p>No stores yet.<br>Tap below to create your first one.</p>
+      <div class="emptycard">
+        <div class="ei">🏪</div>
+        <h3>Create your first store</h3>
+        <p>Add your services, prices &amp; WhatsApp number — get a shareable link + QR instantly.</p>
+        <div class="feats"><span>📋 Menu</span><span>💬 Booking</span><span>💳 UPI</span><span>🔲 QR code</span></div>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:11.5px;margin-top:34px;opacity:.85">
-      <img src="logo-emblem.png" alt="" style="width:22px;height:22px;object-fit:contain">
+    <div class="brandfoot">
+      <img src="logo-emblem.png" alt="">
       <span>HolyByte Innovations · holybyteinnovations.com</span>
     </div>
   </div>
@@ -298,6 +317,7 @@ function go(screen){
 function renderList(){
   const wrap=document.getElementById('salonList'); wrap.innerHTML='';
   document.getElementById('emptyState').style.display=salons.length?'none':'block';
+  document.getElementById('salonListTitle').style.display=salons.length?'block':'none';
   salons.forEach(s=>{
     const d=document.createElement('div'); d.className='scard'; d.onclick=()=>editSalon(s.id);
     const av=s.logo?`<img class="av" src="${s.logo}">`:`<div class="av">${(s.cat||'🏪').slice(0,1)}</div>`;
