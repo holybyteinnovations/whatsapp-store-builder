@@ -1,5 +1,5 @@
-/* WhatsApp Store Builder — minimal offline service worker */
-const CACHE = 'wsb-v2';
+/* WhatsApp Store Builder — service worker (network-first so updates always show) */
+const CACHE = 'wsb-v3';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -11,17 +11,21 @@ self.addEventListener('activate', e => {
   ).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-  // never cache cloud (Supabase) calls or cross-origin CDN POSTs
-  if (e.request.method !== 'GET') return;
+  const req = e.request;
+  const url = new URL(req.url);
+  if (req.method !== 'GET') return;
+  // never touch cloud (Supabase) calls
   if (url.pathname.includes('/rest/v1/') || url.pathname.includes('/storage/v1/')) return;
+  // only manage same-origin app files
+  if (url.origin !== location.origin) return;
+  // network-first: always try to get the latest, fall back to cache when offline
   e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
-      if (res.ok && url.origin === location.origin) {
+    fetch(req).then(res => {
+      if (res && res.ok) {
         const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
+        caches.open(CACHE).then(c => c.put(req, copy));
       }
       return res;
-    }).catch(() => hit))
+    }).catch(() => caches.match(req).then(hit => hit || caches.match('./index.html')))
   );
 });
