@@ -137,16 +137,13 @@
       <input id="f_name" placeholder="Glow &amp; Go Salon" oninput="live()" />
       <label>Tagline</label>
       <input id="f_tag" placeholder="Walk-in haircuts &amp; grooming" oninput="live()" />
-      <div class="two">
-        <div><label>Category</label>
-          <select id="f_cat" onchange="live()">
-            <option>Salon &amp; Spa</option><option>Beauty &amp; Nails</option><option>Barbershop</option>
-            <option>Cafe &amp; Restaurant</option><option>Bakery</option><option>Clinic / Dental</option>
-            <option>Tutor / Coaching</option><option>Boutique / Store</option><option>Gym / Fitness</option>
-            <option>Services</option><option>Other</option>
-          </select></div>
-        <div><label>Currency</label><input id="f_cur" value="₹" maxlength="3" oninput="live()" /></div>
-      </div>
+      <label>Category <span style="opacity:.65;text-transform:none;letter-spacing:0">— business type, shown under your store name</span></label>
+      <select id="f_cat" onchange="live()">
+        <option>Salon &amp; Spa</option><option>Beauty &amp; Nails</option><option>Barbershop</option>
+        <option>Cafe &amp; Restaurant</option><option>Bakery</option><option>Clinic / Dental</option>
+        <option>Tutor / Coaching</option><option>Boutique / Store</option><option>Gym / Fitness</option>
+        <option>Services</option><option>Other</option>
+      </select>
       <label>Logo (optional)</label>
       <div class="imgpick"><img class="thumb" id="logoThumb" alt="">
         <button class="pickbtn" onclick="pickLogo()">Choose logo</button></div>
@@ -173,6 +170,11 @@
 
     <div class="sec">
       <h3>✂️ Services &amp; prices</h3>
+      <label>Price currency</label>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+        <input id="f_cur" value="₹" maxlength="3" oninput="live()" style="width:84px;text-align:center" />
+        <span class="hint" style="margin:0">Symbol for all prices below (₹, $, €, …)</span>
+      </div>
       <div id="svcList"></div>
       <button class="btn sec" onclick="addSvc()">+ Add service</button>
       <div class="hint">Add a photo per service (optional). Customers tick what they want; the total + list auto-fills their WhatsApp message.</div>
